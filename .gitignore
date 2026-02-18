@@ -1,4 +1,8 @@
 .env
+.venv/
+.venv
+
+
 terraform.tfvars
 **/.terraform/
 *.tfstate
