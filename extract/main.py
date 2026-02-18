@@ -7,14 +7,14 @@ import requests
 from botocore.exceptions import ClientError
 
 from config import S3_BUCKET, S3_PREFIX, logger
-from api_request import get_all_resource_ids, get_daily_resource_id, extract_all, extract_by_date_range
+from api_request import get_all_resources, get_daily_resource, extract_all, extract_by_date
 from load import slugify, upload_to_s3, save_locally
 
 
 def run_backfill(skip_s3=False):
     logger.info("Backfill data")
 
-    resources = get_all_resource_ids()
+    resources = get_all_resources()
     logger.info(f"Found {len(resources)} active resources")
 
     for resource_id, resource_name in resources:
@@ -43,8 +43,8 @@ def run_incremental(start_date, end_date, skip_s3=False):
     logger.info("Incremental data")
     logger.info(f"Date range: {start_date} to {end_date}")
 
-    resource_id = get_daily_resource_id()
-    records = extract_by_date_range(resource_id, start_date, end_date)
+    resource_id = get_daily_resource()
+    records = extract_by_date(resource_id, start_date, end_date)
 
     if not records:
         logger.warning(f"No data found for {start_date} to {end_date}.")

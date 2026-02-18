@@ -1,12 +1,11 @@
 import json
-
 import requests
 
 from config import BASE_URL, PACKAGE_ID, BATCH_SIZE, DAILY_RESOURCE_NAME, logger
 
 
 #return a list of all active datastore resources by making a GET request to the Toronto Open Data CKAN API
-def get_all_resource_ids():
+def get_all_resources():
     url = f"{BASE_URL}/api/3/action/package_show"
     logger.info(f"Fetching package metadata for: {PACKAGE_ID}")
 
@@ -34,8 +33,8 @@ def get_all_resource_ids():
 
 
 #returns the resource ID that gets refreshed daily
-def get_daily_resource_id():
-    resources = get_all_resource_ids()
+def get_daily_resource():
+    resources = get_all_resources()
     for rid, name in resources:
         if name == DAILY_RESOURCE_NAME:
             return rid
@@ -88,7 +87,7 @@ def extract_all(resource_id):
 
 
 #pull records for a date range using a list filter
-def extract_by_date_range(resource_id, start_date, end_date):
+def extract_by_date(resource_id, start_date, end_date):
     from datetime import datetime, timedelta
 
     logger.info(f"Pulling records from date range: {start_date} to {end_date}")
