@@ -1,9 +1,19 @@
+
+
+#environments
 .env
+.env/
 .venv/
 .venv
 
+# python
+__pycache__/
 
+# terraform
 terraform.tfvars
 **/.terraform/
 *.tfstate
 *.tfstate.backup
+
+# macos
+.DS_Store
