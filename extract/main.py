@@ -52,7 +52,7 @@ def run_incremental(start_date, end_date, skip_s3=False):
 
     logger.info(f"Extracted {len(records):,} records")
 
-    filename = f"shelter_occupancy_{start_date.replace('-', '')}_to_{end_date.replace('-', '')}.json"
+    filename = f"{start_date.replace('-', '')}_to_{end_date.replace('-', '')}.json"
     local_path = os.path.join("data", "raw", filename)
     save_locally(records, local_path)
 

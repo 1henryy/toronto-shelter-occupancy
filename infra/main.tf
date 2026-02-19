@@ -1,10 +1,11 @@
-provider "aws" {
-  region  = var.aws_region
-}
+provider "aws" {}
 
+provider "snowflake" {}
+
+# ── S3 ────────────────────────────────────────────────────
 
 #create S3 bucket
-resource "aws_s3_bucket" "data_lake" {
+resource "aws_s3_bucket" "data_lake" { 
   bucket = var.s3_bucket_name
 
   tags = {
@@ -34,7 +35,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "data_lake" {
   }
 }
 
-
+# ── IAM ───────────────────────────────────────────────────
 
 #write IAM policy document for S3 bucket access
 data "aws_iam_policy_document" "s3_access" {
@@ -96,4 +97,26 @@ resource "aws_iam_access_key" "s3_user_key" {
 }
 
 
+# ── Snowflake ─────────────────────────────────────────────
+
+#database
+resource "snowflake_database" "shelter" {
+  name    = "SHELTER_OCCUPANCY"
+  comment = "Toronto shelter occupancy data"
+}
+
+resource "snowflake_schema" "bronze" {
+  database = snowflake_database.shelter.name
+  name     = "BRONZE"
+}
+
+resource "snowflake_schema" "silver" {
+  database = snowflake_database.shelter.name
+  name     = "SILVER"
+}
+
+resource "snowflake_schema" "gold" {
+  database = snowflake_database.shelter.name
+  name     = "GOLD"
+}
 
