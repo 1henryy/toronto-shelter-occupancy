@@ -1,0 +1,11 @@
+# AWS
+aws_region = "us-east-1"
+s3_bucket_name = "your-bucket-name"
+
+# Snowflake authentication
+snowflake_organization_name = "your-org-name"
+snowflake_account_name = "your-account-name"
+snowflake_user = "your-username"
+snowflake_token = "your-pat-token"
+snowflake_warehouse = "DATA_WH"
+snowflake_database = "SHELTER_DB"

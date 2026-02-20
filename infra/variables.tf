@@ -14,16 +14,6 @@ variable "aws_region" {
   type = string
 }
 
-variable "aws_access_key_id" {
-  type = string
-  sensitive = true
-}
-
-variable "aws_secret_access_key" {
-  type = string
-  sensitive = true
-}
-
 variable "s3_iam_policy_name" {
   description = "IAM policy name to access S3 bucket"
   type = string
@@ -64,7 +54,6 @@ variable "snowflake_token" {
 variable "snowflake_warehouse" {
   description = "Name of Snowflake warehouse"
   type = string
-  default = "DATA_WH"
 }
 
 variable "snowflake_warehouse_size" {
@@ -90,7 +79,6 @@ variable "snowflake_max_cluster_count" {
 variable "snowflake_database" {
   description = "Name of Snowflake database"
   type = string
-  default = "SHELTER_DB"
 }
 
 variable "snowflake_storage_integration" {

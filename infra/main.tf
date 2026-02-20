@@ -1,7 +1,5 @@
 provider "aws" {
   region = var.aws_region
-  access_key = var.aws_access_key_id
-  secret_key = var.aws_secret_access_key
 }
 
 provider "snowflake" {
@@ -10,6 +8,7 @@ provider "snowflake" {
   user = var.snowflake_user
   authenticator = "PROGRAMMATIC_ACCESS_TOKEN"
   token = var.snowflake_token
+  preview_features_enabled = ["snowflake_storage_integration_aws_resource", "snowflake_stage_external_s3_resource", "snowflake_file_format_resource"]
 }
 
 # ── S3 ────────────────────────────────────────────────────
@@ -123,12 +122,12 @@ resource "aws_iam_role" "snowflake_s3" {
         Sid = "AllowSnowflakeAssumeRole"
         Effect = "Allow"
         Principal = {
-          AWS = snowflake_storage_integration.snowflake_integration.storage_aws_iam_user_arn
+          AWS = snowflake_storage_integration_aws.snowflake_integration.describe_output[0].iam_user_arn
         }
         Action = "sts:AssumeRole"
         Condition = {
           StringEquals = {
-            "sts:ExternalId" = snowflake_storage_integration.snowflake_integration.storage_aws_external_id
+            "sts:ExternalId" = snowflake_storage_integration_aws.snowflake_integration.describe_output[0].external_id
           }
         }
       }
@@ -182,9 +181,8 @@ resource "snowflake_schema" "gold" {
 }
 
 #storage integration to connect Snowflake to S3
-resource "snowflake_storage_integration" "snowflake_integration" {
+resource "snowflake_storage_integration_aws" "snowflake_integration" {
   name = var.snowflake_storage_integration
-  type                    = "EXTERNAL_STAGE"
   enabled                 = true
   storage_provider        = "S3"
   storage_allowed_locations = ["s3://${var.s3_bucket_name}/shelter-occupancy-data/"]
@@ -203,13 +201,16 @@ resource "snowflake_file_format" "json" {
 
 
 #external stage pointing to S3 bucket
-resource "snowflake_stage" "snowflake_stage" {
-  name = var.snowflake_stage
-  database            = snowflake_database.shelter_db.name
-  schema              = snowflake_schema.bronze.name
-  url                 = "s3://${var.s3_bucket_name}/shelter-occupancy-data/"
-  storage_integration = snowflake_storage_integration.snowflake_integration.name
-  file_format         = "FORMAT_NAME = ${snowflake_database.shelter_db.name}.${snowflake_schema.bronze.name}.${snowflake_file_format.json.name}"
+resource "snowflake_stage_external_s3" "snowflake_stage" {
+  name     = var.snowflake_stage
+  database = snowflake_database.shelter_db.name
+  schema   = snowflake_schema.bronze.name
+  url      = "s3://${var.s3_bucket_name}/shelter-occupancy-data/"
+  storage_integration = snowflake_storage_integration_aws.snowflake_integration.name
+
+  file_format {
+    format_name = "${snowflake_database.shelter_db.name}.${snowflake_schema.bronze.name}.${snowflake_file_format.json.name}"
+  }
 
   depends_on = [
     aws_iam_role.snowflake_s3,

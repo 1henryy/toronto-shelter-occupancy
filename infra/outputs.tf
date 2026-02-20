@@ -41,10 +41,10 @@ output "snowflake_database" {
 
 output "snowflake_storage_integration" {
   description = "Snowflake storage integration name"
-  value = snowflake_storage_integration.snowflake_integration.name
+  value = snowflake_storage_integration_aws.snowflake_integration.name
 }
 
 output "snowflake_stage" {
   description = "Snowflake S3 stage name"
-  value = snowflake_stage.snowflake_stage.name
+  value = snowflake_stage_external_s3.snowflake_stage.name
 }
