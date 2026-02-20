@@ -190,3 +190,29 @@ resource "snowflake_storage_integration" "snowflake_integration" {
   storage_allowed_locations = ["s3://${var.s3_bucket_name}/shelter-occupancy-data/"]
   storage_aws_role_arn = aws_iam_role.snowflake_s3.arn
 }
+
+
+#file format for JSON data
+resource "snowflake_file_format" "json" {
+  name             = "JSON_FORMAT"
+  database         = snowflake_database.shelter_db.name
+  schema           = snowflake_schema.bronze.name
+  format_type      = "JSON"
+  strip_outer_array = true
+}
+
+
+#external stage pointing to S3 bucket
+resource "snowflake_stage" "snowflake_stage" {
+  name = var.snowflake_stage
+  database            = snowflake_database.shelter_db.name
+  schema              = snowflake_schema.bronze.name
+  url                 = "s3://${var.s3_bucket_name}/shelter-occupancy-data/"
+  storage_integration = snowflake_storage_integration.snowflake_integration.name
+  file_format         = "FORMAT_NAME = ${snowflake_database.shelter_db.name}.${snowflake_schema.bronze.name}.${snowflake_file_format.json.name}"
+
+  depends_on = [
+    aws_iam_role.snowflake_s3,
+    aws_iam_role_policy_attachment.snowflake_s3
+  ]
+}

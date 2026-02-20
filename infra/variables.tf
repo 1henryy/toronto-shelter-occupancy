@@ -98,3 +98,9 @@ variable "snowflake_storage_integration" {
   type = string
   default = "SNOWFLAKE_INTEGRATION"
 }
+
+variable "snowflake_stage" {
+  description = "Name for stage"
+  type = string
+  default = "SNOWFLAKE_STAGE"
+}
