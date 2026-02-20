@@ -92,3 +92,9 @@ variable "snowflake_database" {
   type = string
   default = "SHELTER_DB"
 }
+
+variable "snowflake_storage_integration" {
+  description = "Name for storage integration"
+  type = string
+  default = "SNOWFLAKE_INTEGRATION"
+}

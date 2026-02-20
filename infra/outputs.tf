@@ -38,3 +38,8 @@ output "snowflake_database" {
   description = "Snowflake database name"
   value = snowflake_database.shelter_db.name
 }
+
+output "snowflake_storage_integration" {
+  description = "Snowflake storage integration name"
+  value = snowflake_storage_integration.snowflake_integration.name
+}

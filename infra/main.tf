@@ -180,3 +180,13 @@ resource "snowflake_schema" "gold" {
   database = snowflake_database.shelter_db.name
   name = "GOLD"
 }
+
+#storage integration to connect Snowflake to S3
+resource "snowflake_storage_integration" "snowflake_integration" {
+  name = var.snowflake_storage_integration
+  type                    = "EXTERNAL_STAGE"
+  enabled                 = true
+  storage_provider        = "S3"
+  storage_allowed_locations = ["s3://${var.s3_bucket_name}/shelter-occupancy-data/"]
+  storage_aws_role_arn = aws_iam_role.snowflake_s3.arn
+}
