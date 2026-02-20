@@ -15,7 +15,7 @@ provider "snowflake" {
 # ── S3 ────────────────────────────────────────────────────
 
 #create S3 bucket
-resource "aws_s3_bucket" "data_lake" {
+resource "aws_s3_bucket" "data_lake" { 
   bucket = var.s3_bucket_name
 
   tags = {
@@ -24,17 +24,17 @@ resource "aws_s3_bucket" "data_lake" {
   }
 }
 
-#block public access
+#block public access 
 resource "aws_s3_bucket_public_access_block" "data_lake" {
   bucket = aws_s3_bucket.data_lake.id
 
   block_public_acls = true
   block_public_policy = true
   ignore_public_acls = true
-  restrict_public_buckets = true
+  restrict_public_buckets = true 
 }
 
-#server side encryption
+#server side encryption 
 resource "aws_s3_bucket_server_side_encryption_configuration" "data_lake" {
   bucket = aws_s3_bucket.data_lake.id
 
@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "s3_access" {
       ]
 
     resources = [
-      aws_s3_bucket.data_lake.arn
+      aws_s3_bucket.data_lake.arn  
     ]
   }
 
@@ -67,13 +67,13 @@ data "aws_iam_policy_document" "s3_access" {
     effect = "Allow"
 
     actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:DeleteObject",
+      "s3:GetObject",    
+      "s3:PutObject",    
+      "s3:DeleteObject",  
     ]
 
     resources = [
-      "${aws_s3_bucket.data_lake.arn}/*"
+      "${aws_s3_bucket.data_lake.arn}/*" 
     ]
   }
 }
@@ -123,12 +123,12 @@ resource "aws_iam_role" "snowflake_s3" {
         Sid = "AllowSnowflakeAssumeRole"
         Effect = "Allow"
         Principal = {
-          AWS = data.aws_caller_identity.current.account_id
+          AWS = snowflake_storage_integration.snowflake_integration.storage_aws_iam_user_arn
         }
         Action = "sts:AssumeRole"
         Condition = {
           StringEquals = {
-            "sts:ExternalId" = "placeholder"
+            "sts:ExternalId" = snowflake_storage_integration.snowflake_integration.storage_aws_external_id
           }
         }
       }
@@ -151,7 +151,7 @@ resource "aws_iam_role_policy_attachment" "snowflake_s3" {
 
 # ── Snowflake ─────────────────────────────────────────────
 
-#warehouse
+#warehouse 
 resource "snowflake_warehouse" "data_wh" {
   name = var.snowflake_warehouse
   warehouse_size = var.snowflake_warehouse_size
@@ -188,7 +188,7 @@ resource "snowflake_storage_integration" "snowflake_integration" {
   enabled                 = true
   storage_provider        = "S3"
   storage_allowed_locations = ["s3://${var.s3_bucket_name}/shelter-occupancy-data/"]
-  storage_aws_role_arn = aws_iam_role.snowflake_s3.arn
+  storage_aws_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.snowflake_iam_role_name}"
 }
 
 
@@ -216,3 +216,4 @@ resource "snowflake_stage" "snowflake_stage" {
     aws_iam_role_policy_attachment.snowflake_s3
   ]
 }
+

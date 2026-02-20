@@ -44,16 +44,16 @@ variable "snowflake_iam_role_name" {
 
 # ── Snowflake ────────────────────────────────────────────
 
-variable "snowflake_organization_name" {
-  type = string
+variable "snowflake_organization_name" { 
+  type = string 
 }
 
-variable "snowflake_account_name" {
-  type = string
+variable "snowflake_account_name" { 
+  type = string 
 }
 
-variable "snowflake_user" {
-  type = string
+variable "snowflake_user" { 
+  type = string 
 }
 
 variable "snowflake_token" {
@@ -104,3 +104,4 @@ variable "snowflake_stage" {
   type = string
   default = "SNOWFLAKE_STAGE"
 }
+
