@@ -21,3 +21,9 @@ incremental:
 
 incremental-local:
 	python extract/main.py --skip-s3
+
+dbt-run:
+	dbt run --project-dir transform --profiles-dir transform
+
+dbt-test:
+	dbt test --project-dir transform --profiles-dir transform

@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: shelter_occupancy
+    description: Cleaned and transformed data extracted from Bronze VARIANT column
+    columns:
+      - name: id
+        description: Unique record identifier from CKAN API
+        tests:
+          - unique
+          - not_null
+      - name: occupancy_date
+        tests:
+          - not_null

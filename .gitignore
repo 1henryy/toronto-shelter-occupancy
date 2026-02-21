@@ -16,5 +16,11 @@ terraform.tfvars
 # macos
 .DS_Store
 
+# dbt
+transform/profiles.yml
+transform/target/
+transform/dbt_packages/
+transform/logs/
+
 # testing
 data/

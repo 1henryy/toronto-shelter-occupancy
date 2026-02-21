@@ -1,0 +1,12 @@
+shelter_occupancy:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: your-snowflake-account
+      database: SHELTER_DB
+      warehouse: DATA_WH
+      role: ACCOUNTADMIN
+      schema: SILVER
+      authenticator: programmatic_access_token
+      token: "{{ env_var('SNOWFLAKE_TOKEN') }}"
