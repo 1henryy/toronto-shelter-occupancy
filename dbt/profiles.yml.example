@@ -8,5 +8,4 @@ shelter_occupancy:
       warehouse: DATA_WH
       role: ACCOUNTADMIN
       schema: SILVER
-      authenticator: programmatic_access_token
-      token: "{{ env_var('SNOWFLAKE_TOKEN') }}"
+      private_key_path: ../snowflake_key.p8

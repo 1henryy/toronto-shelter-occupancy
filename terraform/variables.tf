@@ -34,8 +34,14 @@ variable "snowflake_iam_role_name" {
 
 # ── Snowflake ────────────────────────────────────────────
 
-variable "snowflake_organization_name" { 
-  type = string 
+variable "snowflake_private_key_path" {
+  description = "Path to RSA private key file for Snowflake auth"
+  type = string
+  default = "../snowflake_key.p8"
+}
+
+variable "snowflake_organization_name" {
+  type = string
 }
 
 variable "snowflake_account_name" { 
@@ -44,11 +50,6 @@ variable "snowflake_account_name" {
 
 variable "snowflake_user" { 
   type = string 
-}
-
-variable "snowflake_token" {
-  type = string
-  sensitive = true
 }
 
 variable "snowflake_warehouse" {

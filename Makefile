@@ -2,13 +2,13 @@ setup:
 	pip install -r requirements.txt
 
 infra-init:
-	terraform -chdir=infra init
+	terraform -chdir=terraform init
 
 infra-plan:
-	terraform -chdir=infra plan
+	terraform -chdir=terraform plan
 
 infra-apply:
-	terraform -chdir=infra apply
+	terraform -chdir=terraform apply
 
 backfill:
 	python extract/main.py --backfill
@@ -23,7 +23,7 @@ incremental-local:
 	python extract/main.py --skip-s3
 
 dbt-run:
-	dbt run --project-dir transform --profiles-dir transform
+	dbt run --project-dir dbt --profiles-dir dbt
 
 dbt-test:
-	dbt test --project-dir transform --profiles-dir transform
+	dbt test --project-dir dbt --profiles-dir dbt

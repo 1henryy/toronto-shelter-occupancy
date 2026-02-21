@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: shelter_occupancy
-    description: Cleaned and transformed data extracted from Bronze VARIANT column
+    description: Cleaned data extracted from Bronze VARIANT column
     columns:
       - name: id
         description: Unique record identifier from CKAN API

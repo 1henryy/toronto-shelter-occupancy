@@ -17,10 +17,15 @@ terraform.tfvars
 .DS_Store
 
 # dbt
-transform/profiles.yml
-transform/target/
-transform/dbt_packages/
-transform/logs/
+dbt/profiles.yml
+dbt/target/
+dbt/.user.yml
+dbt/dbt_packages/
+dbt/logs/
+
+# snowflake keys
+*.p8
+*.pub
 
 # testing
 data/
