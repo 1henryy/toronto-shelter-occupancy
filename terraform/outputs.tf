@@ -1,32 +1,16 @@
 output "s3_bucket_name" {
   description = "Name of the S3 bucket"
-  value = aws_s3_bucket.data_lake.id
+  value = aws_s3_bucket.s3_bucket.id
 }
 
 output "s3_bucket_arn" {
   description = "ARN of the S3 bucket"
-  value = aws_s3_bucket.data_lake.arn
-}
-
-output "s3_user_name" {
-  description = "IAM user name for s3 access"
-  value = aws_iam_user.s3_user.name
-}
-
-output "s3_user_access_key_id" {
-  description = "Access Key ID for the s3 user"
-  value = aws_iam_access_key.s3_user_key.id
-}
-
-output "s3_user_secret_access_key" {
-  description = "Secret Access Key for the s3 user"
-  value = aws_iam_access_key.s3_user_key.secret
-  sensitive = true
+  value = aws_s3_bucket.s3_bucket.arn
 }
 
 output "snowflake_iam_role_arn" {
   description = "ARN of the IAM role for Snowflake S3 access"
-  value = aws_iam_role.snowflake_s3.arn
+  value = aws_iam_role.snowflake_role.arn
 }
 
 output "snowflake_warehouse" {
@@ -47,4 +31,14 @@ output "snowflake_storage_integration" {
 output "snowflake_stage" {
   description = "Snowflake S3 stage name"
   value = snowflake_stage_external_s3.snowflake_stage.name
+}
+
+output "lambda1_name" {
+  description = "Name of the lambda1 function"
+  value = aws_lambda_function.lambda1_function.function_name
+}
+
+output "lambda1_arn" {
+  description = "ARN of the lambda1 function"
+  value = aws_lambda_function.lambda1_function.arn
 }

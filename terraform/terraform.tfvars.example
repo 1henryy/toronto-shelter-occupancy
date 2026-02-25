@@ -2,9 +2,16 @@
 aws_region = "us-east-1"
 s3_bucket_name = "your-bucket-name"
 
-# Snowflake authentication
+# Snowflake
 snowflake_organization_name = "your-org-name"
 snowflake_account_name = "your-account-name"
 snowflake_user = "your-username"
 snowflake_warehouse = "DATA_WH"
 snowflake_database = "SHELTER_DB"
+
+# Lambda (optional — defaults exist in variables.tf)
+# lambda1_function_name = "lambda1"
+# lambda1_policy_name = "lambda1_policy"
+# lambda1_memory = 512
+# lambda1_timeout = 300
+# lambda1_log_retention_days = 14

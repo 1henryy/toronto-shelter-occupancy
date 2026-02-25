@@ -20,11 +20,6 @@ variable "s3_iam_policy_name" {
   default = "s3_access"
 }
 
-variable "s3_iam_user_name" {
-  description = "IAM user name to access S3 bucket"
-  type = string
-  default = "s3_user"
-}
 
 variable "snowflake_iam_role_name" {
   description = "IAM role name for Snowflake to access S3"
@@ -92,5 +87,43 @@ variable "snowflake_stage" {
   description = "Name for stage"
   type = string
   default = "SNOWFLAKE_STAGE"
+}
+
+# ── Lambda ──────────────────────────────────────────────────
+
+variable "lambda_role_name" {
+  description = "IAM role name for Lambda execution"
+  type = string
+  default = "lambda_role"
+}
+
+variable "lambda1_function_name" {
+  description = "Name of lambda1 function"
+  type = string
+  default = "lambda1"
+}
+
+variable "lambda1_policy_name" {
+  description = "IAM policy name for lambda1"
+  type = string
+  default = "lambda1_policy"
+}
+
+variable "lambda1_memory" {
+  description = "Memory (MB) for lambda1"
+  type = number
+  default = 512
+}
+
+variable "lambda1_timeout" {
+  description = "Timeout (seconds) for lambda1"
+  type = number
+  default = 300
+}
+
+variable "lambda1_log_retention_days" {
+  description = "CloudWatch log retention in days"
+  type = number
+  default = 14
 }
 

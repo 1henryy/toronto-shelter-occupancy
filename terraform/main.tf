@@ -6,7 +6,7 @@ provider "snowflake" {
   organization_name = var.snowflake_organization_name
   account_name = var.snowflake_account_name
   user = var.snowflake_user
-  authenticator = "JWT"
+  authenticator = "SNOWFLAKE_JWT"
   private_key = file(var.snowflake_private_key_path)
   preview_features_enabled = ["snowflake_storage_integration_aws_resource", "snowflake_stage_external_s3_resource", "snowflake_file_format_resource"]
 }
@@ -14,7 +14,7 @@ provider "snowflake" {
 # ── S3 ────────────────────────────────────────────────────
 
 #create S3 bucket
-resource "aws_s3_bucket" "data_lake" { 
+resource "aws_s3_bucket" "s3_bucket" { 
   bucket = var.s3_bucket_name
 
   tags = {
@@ -24,8 +24,8 @@ resource "aws_s3_bucket" "data_lake" {
 }
 
 #block public access 
-resource "aws_s3_bucket_public_access_block" "data_lake" {
-  bucket = aws_s3_bucket.data_lake.id
+resource "aws_s3_bucket_public_access_block" "s3_bucket" {
+  bucket = aws_s3_bucket.s3_bucket.id
 
   block_public_acls = true
   block_public_policy = true
@@ -34,8 +34,8 @@ resource "aws_s3_bucket_public_access_block" "data_lake" {
 }
 
 #server side encryption 
-resource "aws_s3_bucket_server_side_encryption_configuration" "data_lake" {
-  bucket = aws_s3_bucket.data_lake.id
+resource "aws_s3_bucket_server_side_encryption_configuration" "s3_bucket" {
+  bucket = aws_s3_bucket.s3_bucket.id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -44,7 +44,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "data_lake" {
   }
 }
 
-# ── IAM ───────────────────────────────────────────────────
+# ── Snowflake ─────────────────────────────────────────────
 
 #write IAM policy document for S3 bucket access
 data "aws_iam_policy_document" "s3_access" {
@@ -57,7 +57,7 @@ data "aws_iam_policy_document" "s3_access" {
       ]
 
     resources = [
-      aws_s3_bucket.data_lake.arn  
+      aws_s3_bucket.s3_bucket.arn  
     ]
   }
 
@@ -72,7 +72,7 @@ data "aws_iam_policy_document" "s3_access" {
     ]
 
     resources = [
-      "${aws_s3_bucket.data_lake.arn}/*" 
+      "${aws_s3_bucket.s3_bucket.arn}/*" 
     ]
   }
 }
@@ -83,36 +83,11 @@ resource "aws_iam_policy" "s3_access" {
   policy = data.aws_iam_policy_document.s3_access.json
 }
 
-
-
-#create IAM user for S3 bucket access
-resource "aws_iam_user" "s3_user" {
-  name = var.s3_iam_user_name
-
-  tags = {
-    Project = var.project_name
-    Purpose = "Programmatic access for the data pipeline"
-    ManagedBy = "terraform"
-  }
-}
-
-#attach the policy to the user
-resource "aws_iam_user_policy_attachment" "s3_access" {
-  user = aws_iam_user.s3_user.name
-  policy_arn = aws_iam_policy.s3_access.arn
-}
-
-#access keys for the user accessing the s3 bucket
-resource "aws_iam_access_key" "s3_user_key" {
-  user = aws_iam_user.s3_user.name
-}
-
-
 #get AWS caller identity for ARN construction
 data "aws_caller_identity" "current" {}
 
 #IAM role for Snowflake to assume when reading from S3
-resource "aws_iam_role" "snowflake_s3" {
+resource "aws_iam_role" "snowflake_role" {
   name = var.snowflake_iam_role_name
 
   assume_role_policy = jsonencode({
@@ -142,13 +117,10 @@ resource "aws_iam_role" "snowflake_s3" {
 }
 
 #attach S3 read policy to Snowflake role
-resource "aws_iam_role_policy_attachment" "snowflake_s3" {
-  role       = aws_iam_role.snowflake_s3.name
+resource "aws_iam_role_policy_attachment" "snowflake_role" {
+  role       = aws_iam_role.snowflake_role.name
   policy_arn = aws_iam_policy.s3_access.arn
 }
-
-
-# ── Snowflake ─────────────────────────────────────────────
 
 #warehouse 
 resource "snowflake_warehouse" "data_wh" {
@@ -213,8 +185,112 @@ resource "snowflake_stage_external_s3" "snowflake_stage" {
   }
 
   depends_on = [
-    aws_iam_role.snowflake_s3,
-    aws_iam_role_policy_attachment.snowflake_s3
+    aws_iam_role.snowflake_role,
+    aws_iam_role_policy_attachment.snowflake_role
   ]
+}
+
+# ── Lambda ─────────────────────────────────────────────────
+
+#IAM role for Lambda execution
+resource "aws_iam_role" "lambda_role" {
+  name = var.lambda_role_name
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Project = var.project_name
+    ManagedBy = "terraform"
+  }
+}
+
+#policy for Lambda1: S3 write and CloudWatch Logs
+data "aws_iam_policy_document" "lambda1_policy" {
+  statement {
+    sid = "AllowS3Write"
+    effect = "Allow"
+
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.s3_bucket.arn}/*"
+    ]
+  }
+
+  statement {
+    sid = "AllowCloudWatchLogs"
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:*"]
+  }
+}
+
+resource "aws_iam_policy" "lambda1_policy" {
+  name = var.lambda1_policy_name
+  policy = data.aws_iam_policy_document.lambda1_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda1_policy" {
+  role = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.lambda1_policy.arn
+}
+
+#CloudWatch log group for lambda1
+resource "aws_cloudwatch_log_group" "lambda1_logs" {
+  name = "/aws/lambda/${var.lambda1_function_name}"
+  retention_in_days = var.lambda1_log_retention_days
+
+  tags = {
+    Project = var.project_name
+    ManagedBy = "terraform"
+  }
+}
+
+#create lambda1 function
+resource "aws_lambda_function" "lambda1_function" {
+  function_name = var.lambda1_function_name
+  role = aws_iam_role.lambda_role.arn
+  handler = "lambda1.handler"
+  runtime = "python3.12"
+  memory_size = var.lambda1_memory
+  timeout = var.lambda1_timeout
+
+  filename = "${path.module}/../build/lambda1.zip"
+  source_code_hash = filebase64sha256("${path.module}/../build/lambda1.zip")
+
+  environment {
+    variables = {
+      S3_BUCKET_NAME = var.s3_bucket_name
+    }
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda1_policy,
+    aws_cloudwatch_log_group.lambda1_logs,
+  ]
+
+  tags = {
+    Project = var.project_name
+    ManagedBy = "terraform"
+  }
 }
 
