@@ -1,6 +1,4 @@
-#environments
-.env
-.env/
+# environments
 .venv/
 .venv
 
@@ -26,6 +24,9 @@ dbt/logs/
 # snowflake keys
 *.p8
 *.pub
+
+# lambda build artifacts
+build/
 
 # testing
 data/
