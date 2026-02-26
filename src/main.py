@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 import requests
 from botocore.exceptions import ClientError
 
-from config import S3_BUCKET, S3_PREFIX, logger
-from api_request import get_all_resources, get_daily_resource, extract_all, extract_by_date
-from load import slugify, upload_to_s3, save_locally
+from .config import S3_BUCKET, S3_PREFIX, logger
+from .api_request import get_all_resources, get_daily_resource, extract_all, extract_by_date
+from .extract_to_s3 import slugify, upload_to_s3, save_locally
 
 
 def run_backfill(skip_s3=False):
@@ -17,6 +17,7 @@ def run_backfill(skip_s3=False):
     resources = get_all_resources()
     logger.info(f"Found {len(resources)} active resources")
 
+    results = []
     for resource_id, resource_name in resources:
 
         logger.info(f"Extracting: {resource_name}")
@@ -35,8 +36,10 @@ def run_backfill(skip_s3=False):
         if not skip_s3:
             s3_key = f"{S3_PREFIX}/backfill/{slug}.json"
             upload_to_s3(records, s3_key)
+            results.append({"s3_key": s3_key, "record_count": len(records)})
 
     logger.info("Backfill complete.")
+    return results
 
 
 def run_incremental(start_date, end_date, skip_s3=False):
@@ -48,7 +51,7 @@ def run_incremental(start_date, end_date, skip_s3=False):
 
     if not records:
         logger.warning(f"No data found for {start_date} to {end_date}.")
-        return None
+        return {"s3_key": None, "record_count": 0}
 
     logger.info(f"Extracted {len(records):,} records")
 
@@ -58,12 +61,12 @@ def run_incremental(start_date, end_date, skip_s3=False):
 
     if skip_s3:
         logger.info("Skipping S3 upload")
-        return local_path
+        return {"s3_key": None, "record_count": len(records)}
 
     s3_key = f"{S3_PREFIX}/incremental/{filename}"
     upload_to_s3(records, s3_key)
     logger.info(f"Loaded {len(records):,} records into S3://{S3_BUCKET}/{s3_key}")
-    return s3_key
+    return {"s3_key": s3_key, "record_count": len(records)}
 
 
 def main():

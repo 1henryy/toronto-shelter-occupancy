@@ -5,7 +5,7 @@ import re
 import boto3
 from botocore.exceptions import ClientError
 
-from config import S3_BUCKET, S3_PREFIX, logger
+from .config import S3_BUCKET, S3_PREFIX, logger
 
 
 def slugify(name):
@@ -14,7 +14,7 @@ def slugify(name):
 
 def upload_to_s3(records, s3_key):
     if not S3_BUCKET:
-        raise ValueError("S3_BUCKET_NAME is not set in the .env file")
+        raise ValueError("S3_BUCKET_NAME environment variable is not set")
 
     json_content = json.dumps(records, indent=2)
     s3_client = boto3.client("s3")
@@ -37,7 +37,7 @@ def upload_to_s3(records, s3_key):
         elif error_code in ("AccessDenied", "InvalidAccessKeyId"):
             raise PermissionError(
                 f"Access denied to bucket '{S3_BUCKET}'. "
-                f"Check that your .env file has the correct credentials."
+                f"Check IAM permissions for the execution role."
             ) from e
         else:
             raise

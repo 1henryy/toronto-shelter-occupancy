@@ -1,7 +1,7 @@
 import json
 import requests
 
-from config import BASE_URL, PACKAGE_ID, BATCH_SIZE, DAILY_RESOURCE_NAME, logger
+from .config import BASE_URL, PACKAGE_ID, BATCH_SIZE, DAILY_RESOURCE_NAME, logger
 
 
 #return a list of all active datastore resources by making a GET request to the Toronto Open Data CKAN API

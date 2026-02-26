@@ -97,31 +97,31 @@ variable "lambda_role_name" {
   default = "lambda_role"
 }
 
-variable "lambda1_function_name" {
-  description = "Name of lambda1 function"
+variable "lambda_extract_function_name" {
+  description = "Name of lambda_extract function"
   type = string
-  default = "lambda1"
+  default = "lambda_extract"
 }
 
-variable "lambda1_policy_name" {
-  description = "IAM policy name for lambda1"
+variable "lambda_extract_policy_name" {
+  description = "IAM policy name for lambda_extract"
   type = string
-  default = "lambda1_policy"
+  default = "lambda_extract_policy"
 }
 
-variable "lambda1_memory" {
-  description = "Memory (MB) for lambda1"
+variable "lambda_extract_memory" {
+  description = "Memory (MB) for lambda_extract"
   type = number
   default = 512
 }
 
-variable "lambda1_timeout" {
-  description = "Timeout (seconds) for lambda1"
+variable "lambda_extract_timeout" {
+  description = "Timeout (seconds) for lambda_extract"
   type = number
   default = 300
 }
 
-variable "lambda1_log_retention_days" {
+variable "lambda_extract_log_retention_days" {
   description = "CloudWatch log retention in days"
   type = number
   default = 14

@@ -215,8 +215,8 @@ resource "aws_iam_role" "lambda_role" {
   }
 }
 
-#policy for Lambda1: S3 write and CloudWatch Logs
-data "aws_iam_policy_document" "lambda1_policy" {
+#policy for Lambda_extract S3 write and CloudWatch Logs
+data "aws_iam_policy_document" "lambda_extract_policy" {
   statement {
     sid = "AllowS3Write"
     effect = "Allow"
@@ -244,20 +244,20 @@ data "aws_iam_policy_document" "lambda1_policy" {
   }
 }
 
-resource "aws_iam_policy" "lambda1_policy" {
-  name = var.lambda1_policy_name
-  policy = data.aws_iam_policy_document.lambda1_policy.json
+resource "aws_iam_policy" "lambda_extract_policy" {
+  name = var.lambda_extract_policy_name
+  policy = data.aws_iam_policy_document.lambda_extract_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "lambda1_policy" {
+resource "aws_iam_role_policy_attachment" "lambda_extract_policy" {
   role = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.lambda1_policy.arn
+  policy_arn = aws_iam_policy.lambda_extract_policy.arn
 }
 
-#CloudWatch log group for lambda1
-resource "aws_cloudwatch_log_group" "lambda1_logs" {
-  name = "/aws/lambda/${var.lambda1_function_name}"
-  retention_in_days = var.lambda1_log_retention_days
+#CloudWatch log group for lambda_extract
+resource "aws_cloudwatch_log_group" "lambda_extract_logs" {
+  name = "/aws/lambda/${var.lambda_extract_function_name}"
+  retention_in_days = var.lambda_extract_log_retention_days
 
   tags = {
     Project = var.project_name
@@ -265,17 +265,17 @@ resource "aws_cloudwatch_log_group" "lambda1_logs" {
   }
 }
 
-#create lambda1 function
-resource "aws_lambda_function" "lambda1_function" {
-  function_name = var.lambda1_function_name
+#create lambda_extract function
+resource "aws_lambda_function" "lambda_extract_function" {
+  function_name = var.lambda_extract_function_name
   role = aws_iam_role.lambda_role.arn
-  handler = "lambda1.handler"
+  handler = "lambda_extract.handler"
   runtime = "python3.12"
-  memory_size = var.lambda1_memory
-  timeout = var.lambda1_timeout
+  memory_size = var.lambda_extract_memory
+  timeout = var.lambda_extract_timeout
 
-  filename = "${path.module}/../build/lambda1.zip"
-  source_code_hash = filebase64sha256("${path.module}/../build/lambda1.zip")
+  filename = "${path.module}/../build/lambda_extract.zip"
+  source_code_hash = filebase64sha256("${path.module}/../build/lambda_extract.zip")
 
   environment {
     variables = {
@@ -284,8 +284,8 @@ resource "aws_lambda_function" "lambda1_function" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.lambda1_policy,
-    aws_cloudwatch_log_group.lambda1_logs,
+    aws_iam_role_policy_attachment.lambda_extract_policy,
+    aws_cloudwatch_log_group.lambda_extract_logs,
   ]
 
   tags = {

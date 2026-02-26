@@ -8,4 +8,4 @@ shelter_occupancy:
       warehouse: DATA_WH
       role: ACCOUNTADMIN
       schema: SILVER
-      private_key_path: ../snowflake_key.p8
+      private_key_path: snowflake_key.p8

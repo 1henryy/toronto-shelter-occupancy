@@ -5,4 +5,4 @@ sources:
     database: SHELTER_DB
     schema: BRONZE
     tables:
-      - name: SHELTER_OCCUPANCY
+      - name: RAW_SHELTER_OCCUPANCY

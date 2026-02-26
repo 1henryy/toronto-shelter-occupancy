@@ -33,12 +33,12 @@ output "snowflake_stage" {
   value = snowflake_stage_external_s3.snowflake_stage.name
 }
 
-output "lambda1_name" {
-  description = "Name of the lambda1 function"
-  value = aws_lambda_function.lambda1_function.function_name
+output "lambda_extract_name" {
+  description = "Name of the lambda_extract function"
+  value = aws_lambda_function.lambda_extract_function.function_name
 }
 
-output "lambda1_arn" {
-  description = "ARN of the lambda1 function"
-  value = aws_lambda_function.lambda1_function.arn
+output "lambda_extract_arn" {
+  description = "ARN of the lambda_extract function"
+  value = aws_lambda_function.lambda_extract_function.arn
 }
