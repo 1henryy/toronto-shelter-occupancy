@@ -42,3 +42,13 @@ output "lambda_extract_arn" {
   description = "ARN of the lambda_extract function"
   value = aws_lambda_function.lambda_extract_function.arn
 }
+
+output "lambda_load_name" {
+  description = "Name of the lambda_load function"
+  value = aws_lambda_function.lambda_load_function.function_name
+}
+
+output "lambda_load_arn" {
+  description = "ARN of the lambda_load function"
+  value = aws_lambda_function.lambda_load_function.arn
+}

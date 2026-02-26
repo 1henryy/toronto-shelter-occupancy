@@ -9,9 +9,18 @@ snowflake_user = "your-username"
 snowflake_warehouse = "DATA_WH"
 snowflake_database = "SHELTER_DB"
 
-# Lambda (optional — defaults exist in variables.tf)
+# Lambda Extract (optional — defaults exist in variables.tf)
+# lambda_extract_role_name = "lambda_extract_role"
 # lambda_extract_function_name = "lambda_extract"
 # lambda_extract_policy_name = "lambda_extract_policy"
 # lambda_extract_memory = 512
 # lambda_extract_timeout = 300
 # lambda_extract_log_retention_days = 14
+
+# Lambda Load (optional — defaults exist in variables.tf)
+# lambda_load_role_name = "lambda_load_role"
+# lambda_load_function_name = "lambda_load"
+# lambda_load_policy_name = "lambda_load_policy"
+# lambda_load_memory = 512
+# lambda_load_timeout = 300
+# lambda_load_log_retention_days = 14
