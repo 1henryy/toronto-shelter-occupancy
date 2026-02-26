@@ -91,10 +91,10 @@ variable "snowflake_stage" {
 
 # ── Lambda ──────────────────────────────────────────────────
 
-variable "lambda_role_name" {
-  description = "IAM role name for Lambda execution"
+variable "lambda_extract_role_name" {
+  description = "IAM role name for lambda_extract"
   type = string
-  default = "lambda_role"
+  default = "lambda_extract_role"
 }
 
 variable "lambda_extract_function_name" {
@@ -112,7 +112,7 @@ variable "lambda_extract_policy_name" {
 variable "lambda_extract_memory" {
   description = "Memory (MB) for lambda_extract"
   type = number
-  default = 512
+  default = 1024
 }
 
 variable "lambda_extract_timeout" {
@@ -123,6 +123,42 @@ variable "lambda_extract_timeout" {
 
 variable "lambda_extract_log_retention_days" {
   description = "CloudWatch log retention in days"
+  type = number
+  default = 14
+}
+
+variable "lambda_load_role_name" {
+  description = "IAM role name for lambda_load"
+  type = string
+  default = "lambda_load_role"
+}
+
+variable "lambda_load_function_name" {
+  description = "Name of lambda_load function"
+  type = string
+  default = "lambda_load"
+}
+
+variable "lambda_load_policy_name" {
+  description = "IAM policy name for lambda_load"
+  type = string
+  default = "lambda_load_policy"
+}
+
+variable "lambda_load_memory" {
+  description = "Memory (MB) for lambda_load"
+  type = number
+  default = 512
+}
+
+variable "lambda_load_timeout" {
+  description = "Timeout (seconds) for lambda_load"
+  type = number
+  default = 300
+}
+
+variable "lambda_load_log_retention_days" {
+  description = "CloudWatch log retention in days for lambda_load"
   type = number
   default = 14
 }

@@ -192,9 +192,9 @@ resource "snowflake_stage_external_s3" "snowflake_stage" {
 
 # ── Lambda ─────────────────────────────────────────────────
 
-#IAM role for Lambda execution
-resource "aws_iam_role" "lambda_role" {
-  name = var.lambda_role_name
+#IAM role for lambda_extract
+resource "aws_iam_role" "lambda_extract_role" {
+  name = var.lambda_extract_role_name
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -215,7 +215,7 @@ resource "aws_iam_role" "lambda_role" {
   }
 }
 
-#policy for Lambda_extract S3 write and CloudWatch Logs
+#policy for lambda_extract: S3 write and CloudWatch Logs
 data "aws_iam_policy_document" "lambda_extract_policy" {
   statement {
     sid = "AllowS3Write"
@@ -250,7 +250,7 @@ resource "aws_iam_policy" "lambda_extract_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_extract_policy" {
-  role = aws_iam_role.lambda_role.name
+  role = aws_iam_role.lambda_extract_role.name
   policy_arn = aws_iam_policy.lambda_extract_policy.arn
 }
 
@@ -268,7 +268,7 @@ resource "aws_cloudwatch_log_group" "lambda_extract_logs" {
 #create lambda_extract function
 resource "aws_lambda_function" "lambda_extract_function" {
   function_name = var.lambda_extract_function_name
-  role = aws_iam_role.lambda_role.arn
+  role = aws_iam_role.lambda_extract_role.arn
   handler = "lambda_extract.handler"
   runtime = "python3.12"
   memory_size = var.lambda_extract_memory
@@ -286,6 +286,97 @@ resource "aws_lambda_function" "lambda_extract_function" {
   depends_on = [
     aws_iam_role_policy_attachment.lambda_extract_policy,
     aws_cloudwatch_log_group.lambda_extract_logs,
+  ]
+
+  tags = {
+    Project = var.project_name
+    ManagedBy = "terraform"
+  }
+}
+
+#IAM role for lambda_load
+resource "aws_iam_role" "lambda_load_role" {
+  name = var.lambda_load_role_name
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Project = var.project_name
+    ManagedBy = "terraform"
+  }
+}
+
+#policy for lambda_load: CloudWatch Logs only
+data "aws_iam_policy_document" "lambda_load_policy" {
+  statement {
+    sid = "AllowCloudWatchLogs"
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:*"]
+  }
+}
+
+resource "aws_iam_policy" "lambda_load_policy" {
+  name = var.lambda_load_policy_name
+  policy = data.aws_iam_policy_document.lambda_load_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_load_policy" {
+  role = aws_iam_role.lambda_load_role.name
+  policy_arn = aws_iam_policy.lambda_load_policy.arn
+}
+
+#CloudWatch log group for lambda_load
+resource "aws_cloudwatch_log_group" "lambda_load_logs" {
+  name = "/aws/lambda/${var.lambda_load_function_name}"
+  retention_in_days = var.lambda_load_log_retention_days
+
+  tags = {
+    Project = var.project_name
+    ManagedBy = "terraform"
+  }
+}
+
+#create lambda_load function
+resource "aws_lambda_function" "lambda_load_function" {
+  function_name = var.lambda_load_function_name
+  role = aws_iam_role.lambda_load_role.arn
+  handler = "lambda_load.handler"
+  runtime = "python3.12"
+  memory_size = var.lambda_load_memory
+  timeout = var.lambda_load_timeout
+
+  filename = "${path.module}/../build/lambda_load.zip"
+  source_code_hash = filebase64sha256("${path.module}/../build/lambda_load.zip")
+
+  environment {
+    variables = {
+      SNOWFLAKE_ACCOUNT = "${var.snowflake_organization_name}-${var.snowflake_account_name}"
+      SNOWFLAKE_USER = var.snowflake_user
+      SNOWFLAKE_WAREHOUSE = var.snowflake_warehouse
+    }
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_load_policy,
+    aws_cloudwatch_log_group.lambda_load_logs,
   ]
 
   tags = {
