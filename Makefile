@@ -44,7 +44,7 @@ lambda-deploy-lambda_extract:
 lambda-build-lambda_load:
 	rm -rf build/lambda_load_pkg build/lambda_load.zip
 	mkdir -p build/lambda_load_pkg
-	pip install snowflake-connector-python cryptography -t build/lambda_load_pkg --quiet
+	pip install snowflake-connector-python cryptography -t build/lambda_load_pkg --quiet --platform manylinux2014_x86_64 --only-binary=:all:
 	cp lambda/lambda_load.py build/lambda_load_pkg/lambda_load.py
 	cp snowflake_key.p8 build/lambda_load_pkg/snowflake_key.p8
 	cd build/lambda_load_pkg && zip -r ../lambda_load.zip . -x "*.pyc" "__pycache__/*"
